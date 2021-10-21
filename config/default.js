@@ -30,4 +30,14 @@ module.exports = {
         password: undefined,
         name: undefined,
     },
+    redis: {
+        connectionUrl: undefined,
+    },
+    import: {
+        jobOptions: {
+            repeat: {
+                every: 60000,
+            },
+        },
+    }
 };
