@@ -21,4 +21,5 @@ const dataExportService = new DataExportService(config.get('secutix'));
 
 module.exports = {
     dataExportService,
+    DataExportService,
 };

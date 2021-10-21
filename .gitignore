@@ -2,3 +2,4 @@ node_modules
 .vscode
 config/local.yml
 coverage
+.env

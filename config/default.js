@@ -23,4 +23,11 @@ module.exports = {
         },
         exportQuery: undefined,
     },
+    database: {
+        host: undefined,
+        port: undefined,
+        user: undefined,
+        password: undefined,
+        name: undefined,
+    },
 };

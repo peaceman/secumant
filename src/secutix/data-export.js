@@ -120,7 +120,9 @@ class DataExportService {
      */
     async getSoapClient() {
         if (!this.soapClient) {
-            const wsdlUrl = `${trimEnd(this.apiConfig.baseUrl, '/')}/${trimStart(SERVICE_URL_PATH)}`;
+            const wsdlUrl = `${trimEnd(this.apiConfig.baseUrl, '/')}/${trimStart(SERVICE_URL_PATH, '/')}`;
+            log.info({ wsdlUrl }, 'Creating new secutix soap client');
+
             const client = await soap.createClientAsync(wsdlUrl);
 
             configureSoapSecurity(client, this.apiConfig);
