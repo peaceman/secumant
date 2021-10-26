@@ -13,5 +13,6 @@ module.exports = {
         database: config.get('database.name'),
         supportBigNumbers: true,
         bigNumberStrings: true,
+        timezone: '+00:00',
     },
 };
