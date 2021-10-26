@@ -39,5 +39,13 @@ module.exports = {
                 every: 60000,
             },
         },
+    },
+    aggregation: {
+        paymentKindCash: 'Bargeld',
+        paymentKindCard: 'Zahlkart',
+        operatorLedgerAccounts: undefined,
+        cardTypeLedgerAccounts: undefined,
+        cardTypeDocumentTypes: undefined,
+        ledgerAccountsWithVatRate: undefined,
     }
 };
