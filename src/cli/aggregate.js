@@ -68,7 +68,7 @@ exports.handler = async argv => {
 };
 
 async function* provideLineItems(startDate, endDate) {
-    let page = 1;
+    let page = 0;
 
     while (true) {
         const result = await SecutixLineItem.query()
