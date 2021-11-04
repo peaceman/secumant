@@ -1,6 +1,6 @@
 'use strict';
 
-const { parseISO, formatISO9075 } = require('date-fns');
+const { parseISO, formatISO9075, addMinutes } = require('date-fns');
 const { Model, snakeCaseMappers } = require('objection');
 const { knex } = require('..');
 
@@ -32,7 +32,9 @@ class BaseModel extends Model {
                 && json[propName] !== undefined)
             {
                 const date = parseISO(json[propName]);
-                json[propName] = formatISO9075(date);
+                // formatISO9075 fucks utc up https://github.com/date-fns/date-fns/issues/2151
+                // so we have to pre adjust the time here
+                json[propName] = formatISO9075(addMinutes(date, date.getTimezoneOffset()));
             }
         }
 

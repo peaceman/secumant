@@ -2,18 +2,15 @@ const Knex = require('knex');
 const config = require('config');
 const crypto = require('crypto');
 
+const knexConfig = require('../../knexfile');
+
 function openConnection(databaseName = undefined) {
     return Knex({
-        client: 'mysql2',
+        ...knexConfig,
         connection: {
-            host: config.get('database.host'),
-            port: config.get('database.port'),
-            user: config.get('database.user'),
-            password: config.get('database.password'),
+            ...knexConfig.connection,
             database: databaseName,
-            supportBigNumbers: true,
-            bigNumberStrings: true,
-        }
+        },
     });
 }
 
