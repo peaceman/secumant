@@ -4,6 +4,7 @@ module.exports = {
         auth: {
             username: undefined,
             password: undefined,
+            tenant: undefined,
         },
         httpProxy: {
             protocol: 'http',
@@ -37,6 +38,13 @@ module.exports = {
         jobOptions: {
             repeat: {
                 every: 60000,
+            },
+        },
+    },
+    transform: {
+        jobOptions: {
+            repeat: {
+                cron: '0 9 * * 2', // every tuesday at 9am
             },
         },
     },
