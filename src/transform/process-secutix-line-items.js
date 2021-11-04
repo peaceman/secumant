@@ -4,7 +4,7 @@ const { previousSunday } = require("date-fns");
 const { Model } = require("objection");
 const { SecutixLineItem } = require("../database/models");
 const { DiamantTransaction, genRandomDiamantTransactionNumberSuffix } = require("../database/models/diamant-transaction");
-const { SecutixLineAggregator } = require("../export/secutix-line-aggregator");
+const { SecutixLineAggregator } = require("./secutix-line-aggregator");
 const { formatISODate } = require('../util');
 
 class ProcessSecutixLineItems {
@@ -66,7 +66,7 @@ async function* fetchLineItems(beforeDate) {
 }
 
 /**
- * @param {import("../export/secutix-line-aggregator").AggregationLineItem} aggregate
+ * @param {import("./secutix-line-aggregator").AggregationLineItem} aggregate
  */
 async function storeDiamantTransaction(trx, aggregate) {
     const txData = {

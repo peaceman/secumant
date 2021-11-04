@@ -2,7 +2,7 @@
 
 const { addDays, format } = require("date-fns");
 const { SecutixLineItem } = require("../database/models");
-const { createSecutixLineAggregator } = require("../export");
+const { createSecutixLineAggregator } = require("../transform");
 const stream = require('stream');
 const csv = require('csv');
 const fs = require('fs');
