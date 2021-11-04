@@ -2,6 +2,7 @@
 
 const config = require('config');
 const { ProcessSecutixLineItems } = require("./process-secutix-line-items");
+const { SecutixLineAggregator } = require('./secutix-line-aggregator');
 
 /**
  * @returns {ProcessSecutixLineItems}

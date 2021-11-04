@@ -2,6 +2,7 @@
 
 const { SecutixLineItem } = require("../database/models");
 const log = require("../log");
+const { formatISODate } = require("../util");
 
 
 /**
@@ -51,6 +52,9 @@ class SecutixLineAggregator {
 
         /** @type {AggregatorConfig} */
         this.config = config;
+
+        this.ledgerAccountsWithVatRate = new Set(config.ledgerAccountsWithVatRate
+            .map(v => String(v)));
     }
 
     /**
@@ -101,7 +105,7 @@ class SecutixLineAggregator {
         const ledgerAccount = this.determineLedgerAccount(lineItem.data);
 
         const aggLineItem = {
-            referenceDate: lineItem.referenceDate.toISOString(),
+            referenceDate: formatISODate(lineItem.referenceDate),
             groupingKey: this.determineGroupingKey(lineItem.data),
             ledgerAccount: this.determineLedgerAccount(lineItem.data),
             documentType: this.determineDocumentType(lineItem.data),
@@ -121,7 +125,7 @@ class SecutixLineAggregator {
      * @returns {number|null}
      */
     determineVatRate(ledgerAccount, data) {
-        if (!this.config.ledgerAccountsWithVatRate.includes(ledgerAccount))
+        if (!this.ledgerAccountsWithVatRate.has(ledgerAccount))
             return null;
 
         const vatRate = data[this.config.dataKeyConfig.vatRate];

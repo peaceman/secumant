@@ -6,6 +6,7 @@ const { SecutixLineItem } = require("../database/models");
 const { DiamantTransaction, genRandomDiamantTransactionNumberSuffix } = require("../database/models/diamant-transaction");
 const { SecutixLineAggregator } = require("./secutix-line-aggregator");
 const { formatISODate } = require('../util');
+const log = require('../log');
 
 class ProcessSecutixLineItems {
     /**
@@ -17,26 +18,37 @@ class ProcessSecutixLineItems {
     }
 
     async execute() {
+        log.info('Start processing secutix line items');
+
         const lastSunday = previousSunday(new Date());
-        const processedLineIds = [];
+        const ignoredLineIds = [];
 
+        log.info({lastSunday}, 'Aggregating line items');
         for await (const lineItem of fetchLineItems(lastSunday)) {
-            processedLineIds.push(lineItem.id);
-
             if (lineItem.isComposedProduct()) {
+                ignoredLineIds.push(lineItem.id);
                 continue;
             }
 
             this.secutixLineAggregator.feedLineItem(lineItem);
         }
 
-        await Model.transaction(async trx => {
-            for (const aggregate of this.secutixLineAggregator.getAggregatedRecords()) {
-                await storeDiamantTransaction(trx, aggregate);
-            }
+        log.info('Mark ignored line ids as processed');
+        await markSecutixLineItemsAsProcessed(ignoredLineIds);
 
-            await markSecutixLineItemsAsProcessed(trx, processedLineIds);
-        });
+        log.info('Store diamant transactions');
+        for (const aggregate of this.secutixLineAggregator.getAggregatedRecords()) {
+            try {
+                await Model.transaction(async trx => {
+                    await storeDiamantTransaction(aggregate, trx);
+                    await markSecutixLineItemsAsProcessed(aggregate.sourceLineIds, trx);
+                });
+            } catch (error) {
+                log.error({error, aggregate}, 'Failed to store diamant transaction');
+            }
+        }
+
+        log.info('Finished processing secutix line items');
     }
 }
 
@@ -68,7 +80,7 @@ async function* fetchLineItems(beforeDate) {
 /**
  * @param {import("./secutix-line-aggregator").AggregationLineItem} aggregate
  */
-async function storeDiamantTransaction(trx, aggregate) {
+async function storeDiamantTransaction(aggregate, trx) {
     const txData = {
         referenceDate: aggregate.referenceDate,
         documentType: aggregate.documentType,
@@ -85,10 +97,10 @@ async function storeDiamantTransaction(trx, aggregate) {
 }
 
 function genDiamantTransactionNumber(groupingKey) {
-    return `${groupingKey.slice(0, 15 - 5)} ${genRandomDiamantTransactionNumberSuffix()}`;
+    return `${groupingKey.slice(0, 15 - 5).trim()} ${genRandomDiamantTransactionNumberSuffix()}`;
 }
 
-async function markSecutixLineItemsAsProcessed(trx, lineIds) {
+async function markSecutixLineItemsAsProcessed(lineIds, trx) {
     await SecutixLineItem.query(trx)
         .whereIn('id', lineIds)
         .patch({processedAt: new Date().toISOString()});

@@ -24,7 +24,7 @@ class DiamantTransaction extends BaseModel {
                 id: { type: 'string' },
                 referenceDate: { type: 'string', format: 'date' },
                 documentType: { type: 'string' },
-                vatRate: { type: 'number' },
+                vatRate: { type: ['number', 'null'] },
                 number: { type: 'string' },
                 direction: { type: 'string', enum: ['P', 'S'] },
                 ledgerAccount: { type: ['number', 'string'] },
