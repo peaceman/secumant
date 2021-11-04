@@ -73,7 +73,7 @@ async function storeDiamantTransaction(trx, aggregate) {
         referenceDate: aggregate.referenceDate,
         documentType: aggregate.documentType,
         vatRate: aggregate.vatRate,
-        number: `${aggregate.groupingKey} ${genRandomDiamantTransactionNumberSuffix()}`,
+        number: genDiamantTransactionNumber(aggregate.groupingKey),
         amount: aggregate.amount,
         secutixLineItems: (aggregate.sourceLineIds || []).map(id => ({id})),
         direction: aggregate.paymentSale,
@@ -82,6 +82,10 @@ async function storeDiamantTransaction(trx, aggregate) {
 
     await DiamantTransaction.query(trx)
         .insertGraph(txData, {relate: true});
+}
+
+function genDiamantTransactionNumber(groupingKey) {
+    return `${groupingKey.slice(0, 15 - 5)} ${genRandomDiamantTransactionNumberSuffix()}`;
 }
 
 async function markSecutixLineItemsAsProcessed(trx, lineIds) {

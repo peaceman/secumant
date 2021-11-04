@@ -166,6 +166,58 @@ describe('process secutix line items', () => {
         });
     });
 
+    it('trims an overly long grouping key', async () => {
+        const referenceDate = new Date('2021-11-04');
+
+        await SecutixLineItem.query()
+            .insert({
+                id: '1234',
+                referenceDate: formatISODate(referenceDate),
+                data: {},
+            });
+
+        await SecutixLineItem.query()
+            .insert({
+                id: '12345',
+                referenceDate: formatISODate(referenceDate),
+                data: {},
+            });
+
+        const lineAggregator = setupSecutixLineAggregator();
+        const aggregationLineItem = {
+            referenceDate: formatISODate(referenceDate),
+            groupingKey: 'Erhaltene Anzahlungen',
+            ledgerAccount: '2305',
+            documentType: 'STBA',
+            paymentSale: 'P',
+            amount: 23000,
+            vatRate: undefined,
+            sourceLineIds: ['1234', '12345'],
+        };
+
+        lineAggregator.getAggregatedRecords.mockReturnValue([
+            aggregationLineItem,
+        ]);
+
+
+        const process = new ProcessSecutixLineItems(lineAggregator);
+        await process.execute();
+
+        const li = await SecutixLineItem.query().findById('1234');
+        const tx = await li.$relatedQuery('diamantTransaction');
+
+        expect(tx).toBeDefined();
+        expect(tx).toMatchObject({
+            number: expect.stringContaining('Erhaltene'),
+            documentType: aggregationLineItem.documentType,
+            referenceDate: parseISOUTC(aggregationLineItem.referenceDate),
+            ledgerAccount: aggregationLineItem.ledgerAccount,
+            direction: aggregationLineItem.paymentSale,
+            vatRate: null,
+            amount: String(aggregationLineItem.amount),
+        });
+    });
+
     it('marks line items as processed', async () => {
         await SecutixLineItem.query()
             .insert({
