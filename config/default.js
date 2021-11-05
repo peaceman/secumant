@@ -55,5 +55,7 @@ module.exports = {
         cardTypeLedgerAccounts: undefined,
         cardTypeDocumentTypes: undefined,
         ledgerAccountsWithVatRate: undefined,
+        clearingAccount: undefined,
+        taxCodeMapping: {},
     }
 };
