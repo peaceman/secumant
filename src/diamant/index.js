@@ -1,5 +1,11 @@
 'use strict';
 
+const config = require('config');
+
+const { SessionService } = require('./session');
+const { createSoapClient } = require('./soap');
+const { TransactionService } = require('./transaction');
+
 /**
  * @typedef {Object} ApiConfig
  * @property {string} baseUrl
@@ -27,3 +33,21 @@
  * @property {string} username
  * @property {string} password
  */
+
+/**
+ * @typedef {function} SoapClientFactory
+ * @param {string} wsdlUrl
+ * @returns {Promise<soap.Client>}
+ */
+
+const sessionService = new SessionService(config.get('diamant'), createSoapClient);
+const transactionService = new TransactionService(
+    config.get('diamant'),
+    createSoapClient,
+    sessionService,
+);
+
+module.exports = {
+    sessionService,
+    transactionService,
+};
