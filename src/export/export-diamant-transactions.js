@@ -70,12 +70,16 @@ class ExportDiamantTransactions {
                 {
                     account: accounts[tx.direction].debit,
                     debit: tx.amount / 1000,
-                    taxCode,
+                    taxCode: accounts[tx.direction].debit === tx.ledgerAccount
+                        ? taxCode
+                        : undefined,
                 },
                 {
                     account: accounts[tx.direction].credit,
                     credit: tx.amount / 1000,
-                    taxCode,
+                    taxCode: accounts[tx.direction].credit === tx.ledgerAccount
+                        ? taxCode
+                        : undefined,
                 },
             ],
         };

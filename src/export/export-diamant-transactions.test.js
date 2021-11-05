@@ -197,7 +197,6 @@ describe('export diamant transactions', () => {
                 {
                     account: exportConfig.clearingAccount,
                     debit: 2.3,
-                    taxCode: 5,
                 },
                 {
                     account: String(23),
