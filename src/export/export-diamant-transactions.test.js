@@ -34,7 +34,7 @@ describe('export diamant transactions', () => {
     const exportConfig = {
         clearingAccount: '2342',
         taxCodeMapping: {
-            '19000': 5,
+            19000: 5,
         },
     };
 
@@ -210,6 +210,90 @@ describe('export diamant transactions', () => {
             { number: 'A', key: '2301' },
             { number: 'B', key: '2302' },
             { number: 'C', key: '2303' },
+        ];
+
+        for (const tx of txs) {
+            const dbTx = await DiamantTransaction.query()
+                .where({number: tx.number})
+                .first();
+
+            expect(dbTx.key).toEqual(tx.key);
+        }
+    });
+
+    it('continues exporting if a single transaction fails', async () => {
+        const refDate = formatISODate(new Date());
+
+        await DiamantTransaction.query()
+            .insert({
+                referenceDate: refDate,
+                documentType: 'ABCD',
+                direction: 'P',
+                ledgerAccount: 23,
+                number: 'A',
+                amount: 2300,
+            });
+
+        await DiamantTransaction.query()
+            .insert({
+                referenceDate: refDate,
+                documentType: 'ABCD',
+                direction: 'S',
+                ledgerAccount: 23,
+                number: 'B',
+                amount: 2300,
+            });
+
+        const transactionService = setupTransactionService();
+        const exportDiamantTransactions = new ExportDiamantTransactions(
+            exportConfig,
+            transactionService,
+        );
+
+        transactionService.create.mockImplementationOnce(() => {
+            throw 'dis is error';
+        });
+
+        transactionService.create.mockResolvedValueOnce('2302');
+
+        await exportDiamantTransactions.execute();
+
+        expect(transactionService.create).toHaveBeenCalledWith(expect.objectContaining({
+            number: 'A',
+            type: 'ABCD',
+            date: parseISOUTC(refDate),
+            accountAssignments: [
+                {
+                    account: String(23),
+                    debit: 2.3,
+                    taxCode: undefined,
+                },
+                {
+                    account: String(exportConfig.clearingAccount),
+                    credit: 2.3,
+                    taxCode: undefined,
+                },
+            ]
+        }));
+
+        expect(transactionService.create).toHaveBeenCalledWith(expect.objectContaining({
+            number: 'B',
+            type: 'ABCD',
+            date: parseISOUTC(refDate),
+            accountAssignments: [
+                {
+                    account: exportConfig.clearingAccount,
+                    debit: 2.3,
+                },
+                {
+                    account: String(23),
+                    credit: 2.3,
+                },
+            ]
+        }));
+
+        const txs = [
+            { number: 'B', key: '2302' },
         ];
 
         for (const tx of txs) {
