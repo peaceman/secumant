@@ -61,26 +61,33 @@ class ExportDiamantTransactions {
         };
 
         const taxCode = this.config.taxCodeMapping[String(tx.vatRate)];
+        const ledgerAccountAdditions = {
+            taxCode,
+            costCenter: tx.costCenter || undefined,
+        };
+
+        const isLedgerAccount = acc => acc === tx.ledgerAccount;
+
+        const genAccountAssignment = (type, accounts) => {
+            const account = accounts[type];
+
+            const assignment = {
+                account,
+                [type]: tx.amount / 1000,
+            };
+
+            return isLedgerAccount(account)
+                ? {...assignment, ...ledgerAccountAdditions}
+                : assignment;
+        };
 
         return {
             type: tx.documentType,
             date: tx.referenceDate,
             number: tx.number,
             accountAssignments: [
-                {
-                    account: accounts[tx.direction].debit,
-                    debit: tx.amount / 1000,
-                    taxCode: accounts[tx.direction].debit === tx.ledgerAccount
-                        ? taxCode
-                        : undefined,
-                },
-                {
-                    account: accounts[tx.direction].credit,
-                    credit: tx.amount / 1000,
-                    taxCode: accounts[tx.direction].credit === tx.ledgerAccount
-                        ? taxCode
-                        : undefined,
-                },
+                genAccountAssignment('debit', accounts[tx.direction]),
+                genAccountAssignment('credit', accounts[tx.direction]),
             ],
         };
     }

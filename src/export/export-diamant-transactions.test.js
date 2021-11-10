@@ -221,6 +221,51 @@ describe('export diamant transactions', () => {
         }
     });
 
+    it('exports with cost center', async () => {
+        const refDate = formatISODate(new Date());
+
+        await DiamantTransaction.query()
+            .insert({
+                referenceDate: refDate,
+                documentType: 'ABCD',
+                direction: 'P',
+                ledgerAccount: 23,
+                number: 'A',
+                amount: 2300,
+                costCenter: 'LEL',
+            });
+
+        const transactionService = setupTransactionService();
+        const exportDiamantTransactions = new ExportDiamantTransactions(
+            exportConfig,
+            transactionService,
+        );
+
+        transactionService.create.mockResolvedValueOnce('2302');
+
+        await exportDiamantTransactions.execute();
+
+        expect(transactionService.create).toHaveBeenCalledWith(expect.objectContaining({
+            number: 'A',
+            type: 'ABCD',
+            date: parseISOUTC(refDate),
+            accountAssignments: [
+                {
+                    account: String(23),
+                    debit: 2.3,
+                    taxCode: undefined,
+                    costCenter: 'LEL',
+                },
+                {
+                    account: String(exportConfig.clearingAccount),
+                    credit: 2.3,
+                    taxCode: undefined,
+                    costCenter: undefined,
+                },
+            ],
+        }));
+    });
+
     it('continues exporting if a single transaction fails', async () => {
         const refDate = formatISODate(new Date());
 

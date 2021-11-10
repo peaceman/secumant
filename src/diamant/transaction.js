@@ -26,6 +26,7 @@ const SERVICE_WSDL_PATH = '/WS3Trans/TransactionService.asmx?wsdl';
  * @property {number} taxCode
  * @property {number} credit
  * @property {number} debit
+ * @property {string|null} costCenter
  */
 
 class TransactionService extends BaseService {
@@ -53,6 +54,26 @@ class TransactionService extends BaseService {
     async create(transaction) {
         const sessionKey = await this.sessionService.getSessionKey();
 
+        function buildAccountAssignment(aa) {
+            const r = {
+                AccountNo: aa.account,
+                TaxCode: aa.taxCode,
+                Text: aa.text,
+                Credit: aa.credit,
+                Debit: aa.debit,
+            };
+
+            if (aa.costCenter) {
+                r['CAccDataTab'] = {
+                    CAccData: [
+                        {CostCenter: aa.costCenter},
+                    ],
+                };
+            }
+
+            return r;
+        }
+
         const body = {
             session: sessionKey,
             data: {
@@ -61,13 +82,8 @@ class TransactionService extends BaseService {
                 TransNumber: transaction.number,
                 Currency: 'EUR',
                 AccountAssignmentTab: {
-                    AccountAssignment: (transaction.accountAssignments || []).map(aa => ({
-                        AccountNo: aa.account,
-                        TaxCode: aa.taxCode,
-                        Text: aa.text,
-                        Credit: aa.credit,
-                        Debit: aa.debit,
-                    })),
+                    AccountAssignment: (transaction.accountAssignments || [])
+                        .map(buildAccountAssignment),
                 },
             },
         };
