@@ -12,6 +12,7 @@ const { formatISODate } = require("../util");
  * @property {string} ledgerAccount FiBu-/Sachkonto
  * @property {string} documentType Belegart
  * @property {string} paymentSale
+ * @property {string|undefined} costCenter
  * @property {number} amount
  * @property {number|undefined} vatRate
  * @property {string} sourceLineIds
@@ -38,6 +39,7 @@ const { formatISODate } = require("../util");
  * @property {string} vatRate
  * @property {string} paymentSale
  * @property {string} amount
+ * @property {string} costCenter
  */
 
 class SecutixLineAggregator {
@@ -110,12 +112,26 @@ class SecutixLineAggregator {
             ledgerAccount: this.determineLedgerAccount(lineItem.data),
             documentType: this.determineDocumentType(lineItem.data),
             paymentSale: lineItem.data[this.config.dataKeyConfig.paymentSale],
+            costCenter: this.determineCostCenter(lineItem.data),
             amount: Number(lineItem.data[this.config.dataKeyConfig.amount]),
             vatRate: this.determineVatRate(ledgerAccount, lineItem.data),
             sourceLineIds: [lineItem.id],
         };
 
         return aggLineItem;
+    }
+
+    /**
+     * @private
+     * @param {object} data
+     * @returns {string|undefined}
+     */
+    determineCostCenter(data) {
+        const costCenter = String(data[this.config.dataKeyConfig.costCenter] || '').trim();
+
+        return costCenter.length !== 0
+            ? costCenter
+            : undefined;
     }
 
     /**
@@ -262,6 +278,7 @@ function checkProperties(aggregate, lineItem) {
         'documentType',
         'paymentSale',
         'vatRate',
+        'costCenter',
     ];
 
     for (const propName of propsToCheck) {

@@ -90,6 +90,7 @@ async function storeDiamantTransaction(aggregate, trx) {
         secutixLineItems: (aggregate.sourceLineIds || []).map(id => ({id})),
         direction: aggregate.paymentSale,
         ledgerAccount: aggregate.ledgerAccount,
+        costCenter: aggregate.costCenter,
     };
 
     await DiamantTransaction.query(trx)
