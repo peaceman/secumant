@@ -17,6 +17,7 @@ exports.builder = yargs => {
             type: 'string',
         });
 };
+
 exports.handler = async argv => {
     const exportRequest = {
         startDate: argv.startDate ? parseDate(argv.startDate) : undefined,

@@ -221,7 +221,7 @@ describe('export diamant transactions', () => {
         }
     });
 
-    it('exports with cost center', async () => {
+    it('exports with cost center and cost object', async () => {
         const refDate = formatISODate(new Date());
 
         await DiamantTransaction.query()
@@ -233,6 +233,7 @@ describe('export diamant transactions', () => {
                 number: 'A',
                 amount: 2300,
                 costCenter: 'LEL',
+                costObject: 'LUL',
             });
 
         const transactionService = setupTransactionService();
@@ -255,12 +256,14 @@ describe('export diamant transactions', () => {
                     debit: 2.3,
                     taxCode: undefined,
                     costCenter: 'LEL',
+                    costObject: 'LUL',
                 },
                 {
                     account: String(exportConfig.clearingAccount),
                     credit: 2.3,
                     taxCode: undefined,
                     costCenter: undefined,
+                    costObject: undefined,
                 },
             ],
         }));

@@ -91,6 +91,7 @@ async function storeDiamantTransaction(aggregate, trx) {
         direction: aggregate.paymentSale,
         ledgerAccount: aggregate.ledgerAccount,
         costCenter: aggregate.costCenter,
+        costObject: aggregate.costObject,
     };
 
     await DiamantTransaction.query(trx)
@@ -106,7 +107,6 @@ async function markSecutixLineItemsAsProcessed(lineIds, trx) {
         .whereIn('id', lineIds)
         .patch({processedAt: new Date().toISOString()});
 }
-
 
 module.exports = {
     ProcessSecutixLineItems,

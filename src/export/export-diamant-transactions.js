@@ -60,14 +60,13 @@ class ExportDiamantTransactions {
             'S': { debit: this.config.clearingAccount, credit: tx.ledgerAccount },
         };
 
-        const taxCode = this.config.taxCodeMapping[String(tx.vatRate)];
         const ledgerAccountAdditions = {
-            taxCode,
+            taxCode: this.config.taxCodeMapping[String(tx.vatRate)],
             costCenter: tx.costCenter || undefined,
+            costObject: tx.costObject || undefined,
         };
 
         const isLedgerAccount = acc => acc === tx.ledgerAccount;
-
         const genAccountAssignment = (type, accounts) => {
             const account = accounts[type];
 

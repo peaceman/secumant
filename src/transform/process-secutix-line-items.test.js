@@ -142,6 +142,7 @@ describe('process secutix line items', () => {
             vatRate: undefined,
             sourceLineIds: ['1234', '12345'],
             costCenter: 'LEL',
+            costObject: 'LUL',
         };
 
         lineAggregator.getAggregatedRecords.mockReturnValue([
@@ -165,6 +166,7 @@ describe('process secutix line items', () => {
             vatRate: null,
             amount: String(aggregationLineItem.amount),
             costCenter: aggregationLineItem.costCenter,
+            costObject: aggregationLineItem.costObject,
         });
     });
 
@@ -196,6 +198,7 @@ describe('process secutix line items', () => {
             vatRate: undefined,
             sourceLineIds: ['1234', '12345'],
             costCenter: undefined,
+            costObject: undefined,
         };
 
         lineAggregator.getAggregatedRecords.mockReturnValue([
@@ -219,6 +222,7 @@ describe('process secutix line items', () => {
             vatRate: null,
             amount: String(aggregationLineItem.amount),
             costCenter: null,
+            costObject: null,
         });
     });
 
@@ -250,6 +254,7 @@ describe('process secutix line items', () => {
             vatRate: undefined,
             sourceLineIds: ['1234'],
             costCenter: 'LEL',
+            costObject: 'LUL',
         };
 
         lineAggregator.getAggregatedRecords.mockReturnValue([

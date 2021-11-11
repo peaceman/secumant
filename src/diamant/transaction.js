@@ -63,10 +63,13 @@ class TransactionService extends BaseService {
                 Debit: aa.debit,
             };
 
-            if (aa.costCenter) {
+            if (aa.costCenter || aa.costObject) {
                 r['CAccDataTab'] = {
                     CAccData: [
-                        {CostCenter: aa.costCenter},
+                        {
+                            CostCenter: aa.costCenter,
+                            CostObject: aa.costObject,
+                        },
                     ],
                 };
             }
