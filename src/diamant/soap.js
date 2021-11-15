@@ -19,7 +19,7 @@ function createHttpClient() {
 
     return axios.create({
         proxy: apiConfig.httpProxy,
-        timeout: 500,
+        timeout: 5000,
     });
 }
 

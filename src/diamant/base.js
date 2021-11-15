@@ -36,8 +36,9 @@ class BaseService {
     async apiCall(method, body = {}) {
         const soapClient = await this.getSoapClient();
         const response = await apiCall(soapClient, method, body);
+        const resultKey = `${method}Result`;
 
-        if (!response.result.SaveResult) {
+        if (!response.result[resultKey]) {
             log.error(
                 {method, body, response},
                 'Unexpected diamant api response',

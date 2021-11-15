@@ -92,9 +92,21 @@ class TransactionService extends BaseService {
         };
 
         const response = await this.apiCall('Save', body);
-        log.info({response}, 'created transaction in diamant');
+        log.info({response}, 'Created transaction in diamant');
 
         return response.key;
+    }
+
+    async reverse(txKey) {
+        const sessionKey = await this.sessionService.getSessionKey();
+
+        const body = {
+            session: sessionKey,
+            Key: txKey,
+        };
+
+        const response = await this.apiCall('ReverseTransaction', body);
+        log.info({response}, 'Reversed transaction in diamant');
     }
 }
 
