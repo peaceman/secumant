@@ -48,6 +48,13 @@ module.exports = {
             },
         },
     },
+    export: {
+        jobOptions: {
+            repeat: {
+                every: 60000,
+            },
+        },
+    },
     aggregation: {
         paymentKindCash: 'Bargeld',
         paymentKindCard: 'Zahlkart',

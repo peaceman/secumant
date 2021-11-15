@@ -1,6 +1,6 @@
 'use strict';
 
-const { previousSunday } = require("date-fns");
+const { previousSunday, subDays } = require("date-fns");
 const { Model } = require("objection");
 const { SecutixLineItem } = require("../database/models");
 const { DiamantTransaction, genRandomDiamantTransactionNumberSuffix } = require("../database/models/diamant-transaction");
@@ -10,7 +10,7 @@ const log = require('../log');
 
 class ProcessSecutixLineItems {
     /**
-     * @param {SecutixLineAggregator} secutixLineAggregator
+     r @param {SecutixLineAggregator} secutixLineAggregator
      */
     constructor(secutixLineAggregator) {
         /** @type {SecutixLineAggregator} */
@@ -20,7 +20,7 @@ class ProcessSecutixLineItems {
     async execute() {
         log.info('Start processing secutix line items');
 
-        const lastSunday = previousSunday(new Date());
+        const lastSunday = previousSunday(subDays(new Date(), 1));
         const ignoredLineIds = [];
 
         log.info({lastSunday}, 'Aggregating line items');

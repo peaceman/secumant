@@ -70,7 +70,7 @@ class DataExportService {
         return result.exports;
     }
 
-    async executeExport(queryKey, dateFrom, { maxResults = 100 } = {}) {
+    async executeExport(queryKey, dateFrom, { maxResults = 500 } = {}) {
         const result = await this.apiCall(
             'executeExport',
             'ExportResult',
