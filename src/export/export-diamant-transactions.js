@@ -51,7 +51,7 @@ class ExportDiamantTransactions {
                 const txKey = await this.transactionService.create(txData);
                 await tx.$query().patch({key: txKey});
             } catch (error) {
-                log.error({error, tx, txData}, 'Failed to export transaction to diamant');
+                log.error({err: error, tx, txData}, 'Failed to export transaction to diamant');
             }
         }
 

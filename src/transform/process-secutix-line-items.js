@@ -47,7 +47,7 @@ class ProcessSecutixLineItems {
                     await markSecutixLineItemsAsProcessed(aggregate.sourceLineIds, trx);
                 });
             } catch (error) {
-                log.error({error, aggregate}, 'Failed to store diamant transaction');
+                log.error({err: error, aggregate}, 'Failed to store diamant transaction');
             }
         }
 
