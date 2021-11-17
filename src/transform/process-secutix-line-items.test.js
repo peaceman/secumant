@@ -170,6 +170,42 @@ describe('process secutix line items', () => {
         });
     });
 
+    it('doesnt store aggregated records with an amount of 0', async () => {
+        const referenceDate = new Date('2021-11-04');
+        await SecutixLineItem.query()
+            .insert({
+                id: '1234',
+                referenceDate: formatISODate(referenceDate),
+                data: {},
+            });
+
+        const lineAggregator = setupSecutixLineAggregator();
+        const aggregationLineItem = {
+            referenceDate: formatISODate(referenceDate),
+            groupingKey: 'WTS GK',
+            ledgerAccount: '2305',
+            documentType: 'STBA',
+            paymentSale: 'P',
+            amount: 0,
+            vatRate: undefined,
+            sourceLineIds: ['1234', '12345'],
+            costCenter: 'LEL',
+            costObject: 'LUL',
+        };
+
+        lineAggregator.getAggregatedRecords.mockReturnValue([
+            aggregationLineItem,
+        ]);
+
+        const process = new ProcessSecutixLineItems(lineAggregator);
+        await process.execute();
+
+        const li = await SecutixLineItem.query().findById('1234');
+        const tx = await li.$relatedQuery('diamantTransaction');
+
+        expect(tx).not.toBeDefined();
+    });
+
     it('trims an overly long grouping key', async () => {
         const referenceDate = new Date('2021-11-04');
 

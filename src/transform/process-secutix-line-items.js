@@ -40,7 +40,10 @@ class ProcessSecutixLineItems {
         for (const aggregate of this.secutixLineAggregator.getAggregatedRecords()) {
             try {
                 await Model.transaction(async trx => {
-                    await storeDiamantTransaction(aggregate, trx);
+                    if (aggregate.amount > 0) {
+                        await storeDiamantTransaction(aggregate, trx);
+                    }
+
                     await markSecutixLineItemsAsProcessed(aggregate.sourceLineIds, trx);
                 });
             } catch (error) {
