@@ -72,7 +72,7 @@ class ExportDiamantTransactions {
 
             const assignment = {
                 account,
-                [type]: tx.amount / 1000,
+                [type]: tx.amount / 100,
             };
 
             return isLedgerAccount(account)

@@ -162,12 +162,12 @@ describe('export diamant transactions', () => {
             accountAssignments: [
                 {
                     account: String(23),
-                    debit: 2.3,
+                    debit: 23,
                     taxCode: undefined,
                 },
                 {
                     account: String(exportConfig.clearingAccount),
-                    credit: 2.3,
+                    credit: 23,
                     taxCode: undefined,
                 },
             ]
@@ -180,11 +180,11 @@ describe('export diamant transactions', () => {
             accountAssignments: [
                 {
                     account: exportConfig.clearingAccount,
-                    debit: 2.3,
+                    debit: 23,
                 },
                 {
                     account: String(23),
-                    credit: 2.3,
+                    credit: 23,
                 },
             ]
         }));
@@ -196,11 +196,11 @@ describe('export diamant transactions', () => {
             accountAssignments: [
                 {
                     account: exportConfig.clearingAccount,
-                    debit: 2.3,
+                    debit: 23,
                 },
                 {
                     account: String(23),
-                    credit: 2.3,
+                    credit: 23,
                     taxCode: 5,
                 },
             ]
@@ -253,14 +253,14 @@ describe('export diamant transactions', () => {
             accountAssignments: [
                 {
                     account: String(23),
-                    debit: 2.3,
+                    debit: 23,
                     taxCode: undefined,
                     costCenter: 'LEL',
                     costObject: 'LUL',
                 },
                 {
                     account: String(exportConfig.clearingAccount),
-                    credit: 2.3,
+                    credit: 23,
                     taxCode: undefined,
                     costCenter: undefined,
                     costObject: undefined,
@@ -313,12 +313,12 @@ describe('export diamant transactions', () => {
             accountAssignments: [
                 {
                     account: String(23),
-                    debit: 2.3,
+                    debit: 23,
                     taxCode: undefined,
                 },
                 {
                     account: String(exportConfig.clearingAccount),
-                    credit: 2.3,
+                    credit: 23,
                     taxCode: undefined,
                 },
             ]
@@ -331,11 +331,11 @@ describe('export diamant transactions', () => {
             accountAssignments: [
                 {
                     account: exportConfig.clearingAccount,
-                    debit: 2.3,
+                    debit: 23,
                 },
                 {
                     account: String(23),
-                    credit: 2.3,
+                    credit: 23,
                 },
             ]
         }));
