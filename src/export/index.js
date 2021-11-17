@@ -8,6 +8,7 @@ const exportDiamantTransactions = new ExportDiamantTransactions(
     {
         clearingAccount: config.get('aggregation.clearingAccount'),
         taxCodeMapping: config.get('aggregation.taxCodeMapping'),
+        postingPeriodOverrides: config.get('aggregation.postingPeriodOverrides'),
     },
     transactionService,
 );

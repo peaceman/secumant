@@ -269,6 +269,103 @@ describe('export diamant transactions', () => {
         }));
     });
 
+    it('exports with overriden posting period', async () => {
+        const refDate = formatISODate(new Date());
+        const overrideDates = {
+            start: new Date('2021-11-12'),
+            end: new Date('2021-11-15'),
+        };
+        const overridePostingPeriod = '23.2032';
+
+        await DiamantTransaction.query()
+            .insert({
+                referenceDate: refDate,
+                documentType: 'ABCD',
+                direction: 'P',
+                ledgerAccount: 23,
+                number: 'A',
+                amount: 2300,
+                costCenter: 'LEL',
+                costObject: 'LUL',
+            });
+
+        await DiamantTransaction.query()
+            .insert({
+                referenceDate: formatISODate(overrideDates.start),
+                documentType: 'ABCD',
+                direction: 'P',
+                ledgerAccount: 23,
+                number: 'B',
+                amount: 2300,
+                costCenter: 'LEL',
+                costObject: 'LUL',
+            });
+
+        const transactionService = setupTransactionService();
+        const exportDiamantTransactions = new ExportDiamantTransactions(
+            {
+                ...exportConfig,
+                postingPeriodOverrides: [
+                    {
+                        startDate: formatISODate(overrideDates.start),
+                        endDate: formatISODate(overrideDates.end),
+                        postingPeriod: overridePostingPeriod,
+                    },
+                ],
+            },
+            transactionService,
+        );
+
+        transactionService.create.mockResolvedValueOnce('2302');
+
+        await exportDiamantTransactions.execute();
+
+        expect(transactionService.create).toHaveBeenCalledWith(expect.objectContaining({
+            number: 'A',
+            type: 'ABCD',
+            date: parseISOUTC(refDate),
+            accountAssignments: [
+                {
+                    account: String(23),
+                    debit: 23,
+                    taxCode: undefined,
+                    costCenter: 'LEL',
+                    costObject: 'LUL',
+                },
+                {
+                    account: String(exportConfig.clearingAccount),
+                    credit: 23,
+                    taxCode: undefined,
+                    costCenter: undefined,
+                    costObject: undefined,
+                },
+            ],
+        }));
+
+        expect(transactionService.create).toHaveBeenCalledWith(expect.objectContaining({
+            number: 'B',
+            type: 'ABCD',
+            date: overrideDates.start,
+            postingPeriod: overridePostingPeriod,
+            accountAssignments: [
+                {
+                    account: String(23),
+                    debit: 23,
+                    taxCode: undefined,
+                    costCenter: 'LEL',
+                    costObject: 'LUL',
+                },
+                {
+                    account: String(exportConfig.clearingAccount),
+                    credit: 23,
+                    taxCode: undefined,
+                    costCenter: undefined,
+                    costObject: undefined,
+                },
+            ],
+        }));
+    });
+
     it('continues exporting if a single transaction fails', async () => {
         const refDate = formatISODate(new Date());
 

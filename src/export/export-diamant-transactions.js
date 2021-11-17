@@ -3,11 +3,20 @@
 const { DiamantTransaction } = require("../database/models/diamant-transaction");
 const { TransactionService } = require("../diamant/transaction");
 const log = require("../log");
+const { parseISOUTC } = require('../util');
 
 /**
  * @typedef {Object} ExportDiamantTransactionsConfig
  * @property {string} clearingAccount
  * @property {Object} taxCodeMapping String(vatRate) -> taxCode
+ * @property {ExportDiamantTransactionConfigPostingPeriodOverride[]} postingPeriodOverrides
+ */
+
+/**
+ * @typedef {Object} ExportDiamantTransactionConfigPostingPeriodOverride
+ * @property {string} startDate
+ * @property {string} endDate
+ * @property {string} postingPeriod
  */
 
 /**
@@ -84,11 +93,32 @@ class ExportDiamantTransactions {
             type: tx.documentType,
             date: tx.referenceDate,
             number: tx.number,
+            postingPeriod: this.determinePostingPeriod(tx.referenceDate),
             accountAssignments: [
                 genAccountAssignment('debit', accounts[tx.direction]),
                 genAccountAssignment('credit', accounts[tx.direction]),
             ],
         };
+    }
+
+    /**
+     * @private
+     * @param {Date} referenceDate
+     * @returns {string|undefined}
+     */
+    determinePostingPeriod(referenceDate) {
+        const periodOverride = (this.config.postingPeriodOverrides || [])
+            .find(o => {
+                const dates = {
+                    start: parseISOUTC(o.startDate),
+                    end: parseISOUTC(o.endDate),
+                };
+
+                return referenceDate >= dates.start
+                    && referenceDate <= dates.end;
+            });
+
+        return periodOverride?.postingPeriod;
     }
 }
 

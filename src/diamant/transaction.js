@@ -15,6 +15,7 @@ const SERVICE_WSDL_PATH = '/WS3Trans/TransactionService.asmx?wsdl';
  * @property {string} type
  * @property {Date} date
  * @property {string} number
+ * @property {string|undefined} postingPeriod
  * @property {AccountAssignment[]} accountAssignments
  */
 
@@ -84,6 +85,7 @@ class TransactionService extends BaseService {
                 TransDate: transaction.date.toISOString(),
                 TransNumber: transaction.number,
                 Currency: 'EUR',
+                PostingPeriod: transaction.postingPeriod,
                 AccountAssignmentTab: {
                     AccountAssignment: (transaction.accountAssignments || [])
                         .map(buildAccountAssignment),
