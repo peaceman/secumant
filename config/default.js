@@ -58,11 +58,24 @@ module.exports = {
     aggregation: {
         paymentKindCash: 'Bargeld',
         paymentKindCard: 'Zahlkart',
+        dataKeyConfig: {
+            accountingCode: 'ACCOUNTING_CODE',
+            operatorName: 'operator_name',
+            cardType: 'CARD_TYPE',
+            ledgerAccount: 'ANALYTIC1',
+            documentType: 'ANALYTIC2',
+            vatRate: 'VAT_RATE',
+            paymentSale: 'PAYMENT_SALE',
+            amount: 'amount',
+            costCenter: 'ANALYTIC3',
+            costObject: 'ANALYTIC4',
+        },
         operatorLedgerAccounts: undefined,
         cardTypeLedgerAccounts: undefined,
         cardTypeDocumentTypes: undefined,
         ledgerAccountsWithVatRate: undefined,
         clearingAccount: undefined,
-        taxCodeMapping: {},
-    }
+        taxCodeMapping: undefined,
+        postingPeriodOverrides: [],
+    },
 };
