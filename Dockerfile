@@ -1,12 +1,12 @@
 # syntax=docker/dockerfile:1
-ARG NODE_BASE_IMAGE=node:17-alpine3.12
+ARG NODE_BASE_IMAGE=node:16.13-alpine3.12
 FROM ${NODE_BASE_IMAGE}
 
 RUN apk add --no-cache tini
 
+USER node
 WORKDIR /app
 
-USER node
 COPY package*.json ./
 RUN npm ci --only=production
 
