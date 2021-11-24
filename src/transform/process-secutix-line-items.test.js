@@ -188,7 +188,7 @@ describe('process secutix line items', () => {
             paymentSale: 'P',
             amount: 0,
             vatRate: undefined,
-            sourceLineIds: ['1234', '12345'],
+            sourceLineIds: ['1234'],
             costCenter: 'LEL',
             costObject: 'LUL',
         };
@@ -204,6 +204,53 @@ describe('process secutix line items', () => {
         const tx = await li.$relatedQuery('diamantTransaction');
 
         expect(tx).not.toBeDefined();
+    });
+
+    it('stores aggregated records with an amount of less than 0', async () => {
+        const referenceDate = new Date('2021-11-04');
+        await SecutixLineItem.query()
+            .insert({
+                id: '1234',
+                referenceDate: formatISODate(referenceDate),
+                data: {},
+            });
+
+        const lineAggregator = setupSecutixLineAggregator();
+        const aggregationLineItem = {
+            referenceDate: formatISODate(referenceDate),
+            groupingKey: 'WTS GK',
+            ledgerAccount: '2305',
+            documentType: 'STBA',
+            paymentSale: 'P',
+            amount: -1000,
+            vatRate: undefined,
+            sourceLineIds: ['1234'],
+            costCenter: 'LEL',
+            costObject: 'LUL',
+        };
+
+        lineAggregator.getAggregatedRecords.mockReturnValue([
+            aggregationLineItem,
+        ]);
+
+        const process = new ProcessSecutixLineItems(lineAggregator);
+        await process.execute();
+
+        const li = await SecutixLineItem.query().findById('1234');
+        const tx = await li.$relatedQuery('diamantTransaction');
+
+        expect(tx).toBeDefined();
+        expect(tx).toMatchObject({
+            number: expect.stringContaining(aggregationLineItem.groupingKey),
+            documentType: aggregationLineItem.documentType,
+            referenceDate: parseISOUTC(aggregationLineItem.referenceDate),
+            ledgerAccount: aggregationLineItem.ledgerAccount,
+            direction: aggregationLineItem.paymentSale,
+            vatRate: null,
+            amount: String(aggregationLineItem.amount),
+            costCenter: aggregationLineItem.costCenter,
+            costObject: aggregationLineItem.costObject,
+        });
     });
 
     it('trims an overly long grouping key', async () => {
