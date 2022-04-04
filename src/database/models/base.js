@@ -16,7 +16,9 @@ class BaseModel extends Model {
     }
 
     $beforeInsert() {
-        this.createdAt = new Date();
+        if (!this.createdAt) {
+            this.createdAt = new Date();
+        }
     }
 
     $formatDatabaseJson(json) {
