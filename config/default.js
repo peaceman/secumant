@@ -78,4 +78,7 @@ module.exports = {
         taxCodeMapping: undefined,
         postingPeriodOverrides: [],
     },
+    sentry: {
+        dsn: undefined,
+    },
 };

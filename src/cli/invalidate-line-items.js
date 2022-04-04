@@ -3,6 +3,7 @@
 const { invalidateSecutixLineItems } = require('../maintenance');
 const log = require('../log');
 const { knex } = require('../database');
+const { withSentry } = require("../sentry");
 
 exports.command = 'invalidate-line-items <start-date> <end-date>';
 exports.desc = 'invalidates secutix line items and their corresponding diamant transactions';
@@ -18,7 +19,7 @@ exports.builder = yargs => {
         });
 };
 
-exports.handler = async argv => {
+exports.handler = withSentry(async argv => {
     const invalidateRequest = {
         startDate: parseDate(argv.startDate),
         endDate: parseDate(argv.endDate),
@@ -28,7 +29,7 @@ exports.handler = async argv => {
 
     // required to let the cli command finish
     knex.destroy();
-};
+});
 
 function parseDate(dateString) {
     const date = new Date(dateString);

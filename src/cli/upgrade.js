@@ -1,10 +1,11 @@
 'use strict';
 
 const log = require('../log');
+const { withSentry } = require("../sentry");
 
 exports.command = 'upgrade';
 exports.desc = 'upgrades the database schema';
-exports.handler = async argv => {
+exports.handler = withSentry(async argv => {
     const { knex } = require('../database');
 
     try {
@@ -17,4 +18,4 @@ exports.handler = async argv => {
 
     // required to let the cli command finish
     await knex.destroy();
-};
+});

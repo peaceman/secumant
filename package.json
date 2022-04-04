@@ -9,6 +9,7 @@
   "author": "nixalio@gmail.com",
   "license": "MIT",
   "dependencies": {
+    "@sentry/node": "^6.19.3",
     "axios": "^0.21.4",
     "bullmq": "^1.50.5",
     "bunyan": "^1.8.15",
@@ -35,6 +36,8 @@
     "sinon": "^11.1.2"
   },
   "jest": {
-    "setupFilesAfterEnv": ["jest-extended/all"]
+    "setupFilesAfterEnv": [
+      "jest-extended/all"
+    ]
   }
 }

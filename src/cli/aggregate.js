@@ -8,6 +8,7 @@ const csv = require('csv');
 const fs = require('fs');
 const log = require("../log");
 const { knex } = require("../database");
+const { withSentry } = require("../sentry");
 
 exports.command = 'aggregate <startDate> <endDate>';
 exports.desc = 'aggregate';
@@ -23,7 +24,7 @@ exports.builder = yargs => {
         });
 };
 
-exports.handler = async argv => {
+exports.handler = withSentry(async argv => {
     const startDate = parseDate(argv.startDate);
     const endDate = parseDate(argv.endDate);
 
@@ -65,7 +66,7 @@ exports.handler = async argv => {
 
     // required to let the cli command finish
     knex.destroy();
-};
+});
 
 async function* provideLineItems(startDate, endDate) {
     let page = 0;

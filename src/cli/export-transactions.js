@@ -1,5 +1,7 @@
 'use strict';
 
+const { withSentry } = require("../sentry");
+
 exports.command = 'export-transactions';
 exports.desc = 'exports diamant transactions';
 exports.builder = yargs => {
@@ -14,7 +16,7 @@ exports.builder = yargs => {
         });
 };
 
-exports.handler = async argv => {
+exports.handler = withSentry(async argv => {
     const { exportDiamantTransactions } = require("../export");
     const log = require("../log");
     const { knex } = require("../database");
@@ -28,7 +30,7 @@ exports.handler = async argv => {
 
     // required to let the cli command finish
     knex.destroy();
-};
+});
 
 function parseDate(dateString) {
     const date = new Date(dateString);

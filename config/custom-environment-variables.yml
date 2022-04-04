@@ -4,3 +4,6 @@ database:
   user: DB_USER
   password: DB_PASSWORD
   name: DB_NAME
+
+sentry:
+  dsn: SENTRY_DSN

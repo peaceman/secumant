@@ -4,6 +4,7 @@ const Redis = require('ioredis');
 const config = require('config');
 const { Queue, QueueScheduler, WorkerOptions, Processor, Worker, JobsOptions } = require('bullmq');
 const log = require('../log');
+const { withSentryQueueProcessor } = require("../sentry");
 
 /**
  * @typedef {Object} QueueInfo
@@ -64,7 +65,7 @@ function createQueueScheduler(queueInfo) {
 function createQueueWorker(queueInfo) {
     const worker = new Worker(
         queueInfo.name,
-        queueInfo.processor,
+        withSentryQueueProcessor(queueInfo.processor),
         {
             ...queueInfo.workerOptions,
             connection: createRedisConnection(queueInfo.redisConnectionUrl),
