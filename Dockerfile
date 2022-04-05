@@ -10,7 +10,7 @@ USER node
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN yarn install
 
 COPY bin ./bin/
 COPY config ./config/
