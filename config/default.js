@@ -48,6 +48,13 @@ module.exports = {
             },
         },
     },
+    report: {
+        jobOptions: {
+            repeat: {
+                cron: '0 11 * * 2', // every tuesday at 11am
+            },
+        },
+    },
     export: {
         jobOptions: {
             repeat: {
@@ -80,5 +87,9 @@ module.exports = {
     },
     sentry: {
         dsn: undefined,
+    },
+    mail: {
+        sender: undefined,
+        smtp: undefined,
     },
 };
