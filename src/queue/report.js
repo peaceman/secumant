@@ -11,8 +11,8 @@ const queueInfo = {
     name: 'diamant-transaction-report',
     redisConnectionUrl: config.get('redis.connectionUrl'),
     processor: async job => {
-        const { exportDiamantTransactions } = require('../export');
-        await exportDiamantTransactions.execute();
+        const { reportDiamantTransactions } = require('../export');
+        await reportDiamantTransactions.execute();
     },
 };
 
