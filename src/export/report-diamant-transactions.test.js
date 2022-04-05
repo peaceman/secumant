@@ -76,7 +76,6 @@ describe('report diamant transactions', () => {
 
         const attachment = mailData.attachments[0];
         expect(attachment).toBeDefined();
-        expect(stream.isReadable(attachment.content)).toBeTrue();
 
         const records = await asyncCollect(attachment.content.pipe(csv.parse({ columns: true })));
         expect(records.length).toEqual(2);
