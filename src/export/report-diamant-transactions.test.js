@@ -111,7 +111,10 @@ describe('report diamant transactions', () => {
                 });
 
             const txs = [];
-            for await (const tx of fetchReportableTransactions()) {
+            for await (const tx of fetchReportableTransactions({
+                from: dayOfPreviousReport,
+                until: now,
+            })) {
                 txs.push(tx);
             }
 
@@ -134,7 +137,10 @@ describe('report diamant transactions', () => {
                 });
 
             const txs = [];
-            for await (const tx of fetchReportableTransactions()) {
+            for await (const tx of fetchReportableTransactions({
+                from: subDays(now, 7),
+                until: now,
+            })) {
                 txs.push(tx);
             }
 
