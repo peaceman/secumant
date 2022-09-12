@@ -71,6 +71,10 @@ describe('invalidate secutix line items', () => {
     }
 
     async function createDiamantTransaction(secutixLineItemIds) {
+        await SecutixLineItem.query()
+            .patch({ processedAt: new Date().toISOString() })
+            .whereIn('id', secutixLineItemIds);
+
         return await DiamantTransaction.query()
             .insertGraph({
                 referenceDate: formatISODate(faker.datatype.datetime()),
@@ -111,7 +115,7 @@ describe('invalidate secutix line items', () => {
             diamantTransactionService,
         );
 
-        await invalidateSecutixLineItems.execute({ startDate, endDate });
+        await invalidateSecutixLineItems.execute({ startDate, endDate, includeProcessed: true });
 
         expect(diamantTransactionService.reverse).toBeCalledTimes(2);
         expect(diamantTransactionService.reverse).toBeCalledWith(txA.key);
@@ -148,7 +152,7 @@ describe('invalidate secutix line items', () => {
             diamantTransactionService,
         );
 
-        await invalidateSecutixLineItems.execute({ startDate, endDate });
+        await invalidateSecutixLineItems.execute({ startDate, endDate, includeProcessed: true });
 
         expect(secutixDataExportService.unflagItems)
             .toBeCalledWith(expect.toIncludeSameMembers(lineItemsA.map(li => li.id)));
@@ -183,5 +187,38 @@ describe('invalidate secutix line items', () => {
         for (const li of lineItemsBefore.concat(lineItemsAfter)) {
             expect(await li.$query()).toBeDefined();
         }
+    });
+
+    it('ignores processed line items when requested', async () => {
+        const startDate = new Date('2021-05-23');
+        const endDate = new Date('2021-05-28');
+
+        const lineItemsA = await createSecutixLineItems(addDays(startDate, 1), 5);
+        const lineItemsB = await createSecutixLineItems(addDays(startDate, 1), 5);
+
+        const txLineItemIds = lineItemsA.map(li => li.id);
+        const txALineItemIds = txLineItemIds.slice(0, 3);
+        const txBLineItemIds = txLineItemIds.slice(3, 5);
+
+        const txA = await createDiamantTransaction(txALineItemIds);
+        const txB = await createDiamantTransaction(txBLineItemIds);
+
+        expect(await txA.$relatedQuery('secutixLineItems').resultSize()).toBe(3);
+        expect(await txB.$relatedQuery('secutixLineItems').resultSize()).toBe(2);
+
+        const secutixDataExportService = setupDataExportService();
+        const diamantTransactionService = setupTransactionService();
+
+        const invalidateSecutixLineItems = new InvalidateSecutixLineItems(
+            secutixDataExportService,
+            diamantTransactionService,
+        );
+
+        await invalidateSecutixLineItems.execute({ startDate, endDate, includeProcessed: false });
+
+        expect(diamantTransactionService.reverse).toBeCalledTimes(0);
+
+        expect(await txA.$query()).toBeDefined();
+        expect(await txB.$query()).toBeDefined();
     });
 });

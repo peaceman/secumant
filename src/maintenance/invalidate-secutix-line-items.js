@@ -11,6 +11,7 @@ const { DiamantTransaction } = require("../database/models/diamant-transaction")
  * @typedef {Object} InvalidateSecutixLineItemsRequest
  * @property {Date} startDate
  * @property {Date} endDate
+ * @property {boolean} includeProcessed
  */
 
 class InvalidateSecutixLineItems {
@@ -66,13 +67,17 @@ class InvalidateSecutixLineItems {
 /**
  * @param {InvalidateSecutixLineItems} request
  */
-async function* fetchLineItemsPerRefDate({ startDate, endDate }) {
+async function* fetchLineItemsPerRefDate({ startDate, endDate, includeProcessed = false }) {
     const q = SecutixLineItem.query()
         .whereBetween('reference_date', [startDate, endDate])
         .orderBy([
             { column: 'reference_date', order: 'asc' },
             { column: 'id', order: 'asc' },
         ]);
+
+    if (!includeProcessed) {
+        q.whereNull('processed_at');
+    }
 
     let currentLineItems = [];
     let pageIdx = 0;
