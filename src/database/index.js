@@ -19,6 +19,7 @@ const knex = Knex({
 
             done(false, conn);
         },
+        min: 0,
     },
 });
 
