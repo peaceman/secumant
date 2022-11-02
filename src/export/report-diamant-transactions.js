@@ -14,8 +14,8 @@ const fs = require("fs");
 
 /**
  * @typedef {Object} ReportingPeriod
- * @property {Date} from
- * @property {Date} until
+ * @property {Date} from excluding
+ * @property {Date} until including
  */
 
 /**
@@ -66,7 +66,7 @@ class ReportDiamantTransactions {
         await this.mailer.sendMail({
             from: this.config.sender,
             to: this.config.recipients,
-            subject: `Diamant Transactions Reporting ${fromDate} - ${untilDate}`,
+            subject: `Diamant Transactions Reporting > ${fromDate} - <= ${untilDate}`,
             attachments: [{
                 filename: `diamant-transactions-${format(new Date(), 'yyyy-MM-dd')}.csv`,
                 content: csvStream,
@@ -87,8 +87,8 @@ async function* fetchReportableTransactions(reportingPeriod) {
     while (true) {
         const query = DiamantTransaction.query()
             .withGraphFetched("secutixLineItems")
-            .whereRaw('date(created_at) >= ?', formatISODate(reportingPeriod.from))
-            .whereRaw('date(created_at) < ?', formatISODate(reportingPeriod.until))
+            .whereRaw('date(created_at) > ?', formatISODate(reportingPeriod.from))
+            .whereRaw('date(created_at) <= ?', formatISODate(reportingPeriod.until))
             .orderBy('id', 'desc')
             .page(page, 100);
 

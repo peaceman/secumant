@@ -94,7 +94,7 @@ describe('report diamant transactions', () => {
     }
 
     describe('reportable diamant transactions provider', () => {
-        it('includes transactions of the last reporting day', async () => {
+        it('excludes transactions of the last reporting day', async () => {
             MockDate.set(now);
             const dayOfPreviousReport = subDays(now, 7);
 
@@ -118,10 +118,10 @@ describe('report diamant transactions', () => {
                 txs.push(tx);
             }
 
-            expect(txs.map(tx => tx.key)).toEqual(["4"]);
+            expect(txs.map(tx => tx.key)).not.toEqual(["4"]);
         });
 
-        it('excludes transactions of the current reporting day', async () => {
+        it('includes transactions of the current reporting day', async () => {
             MockDate.set(now);
 
             const tx = await DiamantTransaction.query()
@@ -144,7 +144,7 @@ describe('report diamant transactions', () => {
                 txs.push(tx);
             }
 
-            expect(txs.map(tx => tx.key)).not.toEqual(expect.arrayContaining(["4"]));
+            expect(txs.map(tx => tx.key)).toEqual(expect.arrayContaining(["4"]));
         });
     });
 });
