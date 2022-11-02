@@ -9,6 +9,7 @@ const fs = require('fs');
 const log = require("../log");
 const { knex } = require("../database");
 const { withSentry } = require("../sentry");
+const { parseDate } = require('../util');
 
 exports.command = 'aggregate <startDate> <endDate>';
 exports.desc = 'aggregate';
@@ -86,14 +87,4 @@ async function* provideLineItems(startDate, endDate) {
 
         page += 1;
     }
-}
-
-function parseDate(dateString) {
-    const date = new Date(dateString);
-
-    if (date.toString() === 'Invalid Date') {
-        throw `Invalid date '${dateString}'`;
-    }
-
-    return date;
 }
