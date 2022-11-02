@@ -8,6 +8,11 @@ const { SecutixLineAggregator } = require("./secutix-line-aggregator");
 const { formatISODate } = require('../util');
 const log = require('../log');
 
+/**
+ * @typedef {Object} ProcessSecutixLineItemsRequest
+ * @property {Date} untilReferenceDateIncluding
+ */
+
 class ProcessSecutixLineItems {
     /**
      r @param {SecutixLineAggregator} secutixLineAggregator
@@ -17,14 +22,25 @@ class ProcessSecutixLineItems {
         this.secutixLineAggregator = secutixLineAggregator;
     }
 
-    async execute() {
+    /**
+     * @public
+     * @param {ProcessSecutixLineItemsRequest|undefined} request
+     */
+    async execute(request) {
         log.info('Start processing secutix line items');
 
-        const lastSunday = previousSunday(subDays(new Date(), 1));
+        if (!request) {
+            request = { untilReferenceDateIncluding: previousSunday(subDays(new Date(), 1)) };
+        }
+
         const ignoredLineIds = [];
 
-        log.info({lastSunday}, 'Aggregating line items');
-        for await (const lineItem of fetchLineItems(lastSunday)) {
+        log.info(
+            { untilReferenceDateIncluding: request.untilReferenceDateIncluding },
+            'Aggregating line items'
+        );
+
+        for await (const lineItem of fetchLineItems(request.untilReferenceDateIncluding)) {
             if (lineItem.isComposedProduct()) {
                 ignoredLineIds.push(lineItem.id);
                 continue;

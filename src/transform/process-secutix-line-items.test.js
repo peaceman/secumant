@@ -93,6 +93,25 @@ describe('process secutix line items', () => {
             .toHaveBeenCalledWith(expect.objectContaining({id: '1234'}));
     });
 
+    it('processed unprocessed line items that are older than the configured date', async () => {
+        const processableDate = new Date('2022-10-31');
+
+        await SecutixLineItem.query()
+            .insert({
+                id: '1234',
+                referenceDate: formatISODate(processableDate),
+                data: {},
+            });
+
+        const lineAggregator = setupSecutixLineAggregator();
+        const process = new ProcessSecutixLineItems(lineAggregator);
+
+        await process.execute({ untilReferenceDateIncluding: processableDate });
+
+        expect(lineAggregator.feedLineItem)
+            .toHaveBeenCalledWith(expect.objectContaining({id: '1234'}));
+    });
+
     it('doesnt aggregate composed products', async () => {
         MockDate.set(now);
 
