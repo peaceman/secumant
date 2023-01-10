@@ -1,7 +1,7 @@
 'use strict';
 
 const { previousSunday, subDays } = require("date-fns");
-const { Model } = require("objection");
+const { Model, UniqueViolationError } = require("objection");
 const { SecutixLineItem } = require("../database/models");
 const { DiamantTransaction, genRandomDiamantTransactionNumberSuffix } = require("../database/models/diamant-transaction");
 const { SecutixLineAggregator } = require("./secutix-line-aggregator");
@@ -57,7 +57,9 @@ class ProcessSecutixLineItems {
             try {
                 await Model.transaction(async trx => {
                     if (aggregate.amount !== 0) {
-                        await storeDiamantTransaction(aggregate, trx);
+                        await retryOnError(UniqueViolationError, 2, async () => {
+                            await storeDiamantTransaction(aggregate, trx);
+                        });
                     }
 
                     await markSecutixLineItemsAsProcessed(aggregate.sourceLineIds, trx);
@@ -69,6 +71,23 @@ class ProcessSecutixLineItems {
 
         log.info('Finished processing secutix line items');
     }
+}
+
+async function retryOnError(errorType, retries, fn) {
+    let lastError = undefined;
+
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await fn();
+        } catch (e) {
+            lastError = e;
+            if (e instanceof errorType) {
+                continue;
+            }
+        }
+    }
+
+    throw lastError;
 }
 
 /**
@@ -112,6 +131,8 @@ async function storeDiamantTransaction(aggregate, trx) {
         costCenter: aggregate.costCenter,
         costObject: aggregate.costObject,
     };
+
+    log.info({ number: txData.number }, "Store diamant transaction");
 
     await DiamantTransaction.query(trx)
         .insertGraph(txData, {relate: true});

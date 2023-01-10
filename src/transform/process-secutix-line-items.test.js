@@ -1,6 +1,12 @@
 'use strict';
 
 const { formatISO, parseISO } = require('date-fns');
+const DiamantTransactionModel = require('../database/models/diamant-transaction');
+const genRandomDiamantTransactionNumberSuffix = jest.spyOn(
+    DiamantTransactionModel,
+    'genRandomDiamantTransactionNumberSuffix'
+);
+
 const { SecutixLineItem } = require('../database/models');
 const { createDatabase, dropDatabase, truncateDatabase } = require('../test/database');
 const { Model } = require('objection');
@@ -371,6 +377,67 @@ describe('process secutix line items', () => {
 
         for (const li of lineItems) {
             expect(li.processedAt).not.toBeNull();
+        }
+    });
+
+    it('retries on duplicate diamant transaction numbers', async () => {
+        const referenceDate = new Date('2021-11-04');
+        genRandomDiamantTransactionNumberSuffix
+            .mockReturnValueOnce('abcd')
+            .mockReturnValueOnce('abcd');
+
+        await SecutixLineItem.query()
+            .insert({
+                id: '1234',
+                referenceDate: formatISODate(referenceDate),
+                data: {},
+            });
+
+        await SecutixLineItem.query()
+            .insert({
+                id: '12345',
+                referenceDate: formatISODate(referenceDate),
+                data: {},
+            });
+
+        const lineAggregator = setupSecutixLineAggregator();
+        const aggregationLineItem = {
+            referenceDate: formatISODate(referenceDate),
+            groupingKey: 'Erhaltene Anzahlungen',
+            ledgerAccount: '2305',
+            documentType: 'STBA',
+            paymentSale: 'P',
+            amount: 23000,
+            vatRate: undefined,
+            sourceLineIds: ['1234'],
+            costCenter: undefined,
+            costObject: undefined,
+        };
+
+        lineAggregator.getAggregatedRecords.mockReturnValue([
+            aggregationLineItem,
+            { ...aggregationLineItem, sourceLineIds: ['12345'] },
+        ]);
+
+        const process = new ProcessSecutixLineItems(lineAggregator);
+        await process.execute();
+
+        for (const sourceLineId of ['1234', '12345']) {
+            const li = await SecutixLineItem.query().findById(sourceLineId);
+            const tx = await li.$relatedQuery('diamantTransaction');
+
+            expect(tx).toBeDefined();
+            expect(tx).toMatchObject({
+                number: expect.stringContaining('Erhaltene'),
+                documentType: aggregationLineItem.documentType,
+                referenceDate: parseISOUTC(aggregationLineItem.referenceDate),
+                ledgerAccount: aggregationLineItem.ledgerAccount,
+                direction: aggregationLineItem.paymentSale,
+                vatRate: null,
+                amount: String(aggregationLineItem.amount),
+                costCenter: null,
+                costObject: null,
+            });
         }
     });
 });
