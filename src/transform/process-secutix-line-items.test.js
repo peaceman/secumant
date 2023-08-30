@@ -19,7 +19,7 @@ describe('process secutix line items', () => {
     let db;
 
     const processableDate = new Date('2021-10-31');
-    const unprocessableDate = new Date('2021-11-03');
+    const unprocessableDate = new Date('2021-11-04');
     const now = new Date('2021-11-04');
 
     beforeAll(async () => {
@@ -43,7 +43,7 @@ describe('process secutix line items', () => {
         };
     }
 
-    it('ignores line items that are newer then last sunday', async () => {
+    it('ignores line items that are newer than the day before processing', async () => {
         MockDate.set(now);
 
         await SecutixLineItem.query()
@@ -80,7 +80,7 @@ describe('process secutix line items', () => {
         expect(lineAggregator.feedLineItem).not.toHaveBeenCalled();
     });
 
-    it('processes unprocessed line items that are older than last sunday', async () => {
+    it('processes unprocessed line items that are older than the day of processing', async () => {
         MockDate.set(now);
 
         await SecutixLineItem.query()
