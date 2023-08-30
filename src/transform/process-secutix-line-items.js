@@ -30,7 +30,7 @@ class ProcessSecutixLineItems {
         log.info('Start processing secutix line items');
 
         if (!request) {
-            request = { untilReferenceDateIncluding: previousSunday(subDays(new Date(), 1)) };
+            request = { untilReferenceDateIncluding: new Date() };
         }
 
         const ignoredLineIds = [];
