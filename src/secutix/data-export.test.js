@@ -47,12 +47,14 @@ describe('data-export', () => {
                 statusCode: ApiResponseStatus.SUCCESS,
                 foo: 'bar',
             };
+            const requestId = '1234';
 
             const mockFn = soapClient.MyMagicMethodAsync = jest.fn();
             mockFn.mockResolvedValueOnce([
                 {
                     [resultKey]: {
                         statusCode: ApiResponseStatus.IN_PROGRESS,
+                        requestId,
                     },
                 }
             ]);
@@ -65,6 +67,7 @@ describe('data-export', () => {
 
             const result = await dataExport.apiCall('MyMagicMethod', resultKey);
             expect(result).toBe(expectedResult);
+            expect(mockFn.mock.lastCall[0]?.requestId).toBe(requestId);
         });
 
         it('throws an exception if the response status code was something unexpected', async () => {

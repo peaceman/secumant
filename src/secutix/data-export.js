@@ -41,15 +41,12 @@ class DataExportService {
 
             if (result.statusCode === ApiResponseStatus.IN_PROGRESS) {
                 requestId = result.requestId;
+                if (requestId) continue;
 
-                if (!requestId) {
-                    log.warn(
-                        {method, resultKey, body, response},
-                        'Missing request id in in_progress secutix response'
-                    );
-
-                    continue;
-                }
+                log.warn(
+                    {method, resultKey, body, response},
+                    'Missing request id in in_progress secutix response'
+                );
             }
 
             log.error(
